@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 312 96" role="img" aria-labelledby="title desc">
+  <title id="title">ASAR</title><desc id="desc">Знак объединённого сообщества и слово ASAR</desc>
+  <circle cx="48" cy="48" r="44" fill="#16A34A"/>
+  <path fill="#fff" d="M25 64 43 27h10l18 37H59l-3-7H40l-3 7H25Zm19-16h9l-4.5-11-4.5 11Z"/>
+  <path d="M31 68c6 5 14 5 20 0 6 5 14 5 20 0" fill="none" stroke="#DCFCE7" stroke-width="4" stroke-linecap="round"/>
+  <text x="108" y="62" fill="#17221B" font-family="Onest,Inter,Arial,sans-serif" font-size="48" font-weight="800" letter-spacing="3">ASAR</text>
+</svg>

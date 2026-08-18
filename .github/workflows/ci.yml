@@ -1,0 +1,69 @@
+name: ASAR CI
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-security-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+      - name: Enable pnpm 11.9.0
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.9.0 --activate
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Dependency security audit
+        run: pnpm audit --audit-level=high --prod
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Lint
+        run: pnpm lint
+      - name: Vinext compatibility check
+        run: pnpm compat:check
+      - name: Unit and contract tests
+        run: pnpm test:unit
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+      - name: Start local Supabase and apply migrations
+        shell: bash
+        run: |
+          supabase start
+          supabase db reset
+          eval "$(supabase status -o env)"
+          echo "SUPABASE_TEST_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_TEST_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_TEST_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000" >> "$GITHUB_ENV"
+          echo "CRON_SECRET=ci-only-secret" >> "$GITHUB_ENV"
+      - name: RLS security tests
+        run: pnpm test:rls
+      - name: Production build
+        run: pnpm build
+      - name: Install pinned Playwright test runner for CI
+        run: |
+          pnpm add --ignore-workspace-root-check --config.lockfile=false --save-dev @playwright/test@1.62.0
+          pnpm exec playwright install --with-deps chromium
+      - name: E2E
+        run: pnpm test:e2e
+      - name: Stop Supabase
+        if: always()
+        run: supabase stop --no-backup || true

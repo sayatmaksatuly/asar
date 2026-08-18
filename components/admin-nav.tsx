@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { buttonStyles } from "@/components/ui/primitives";
+import type { Dictionary, Locale } from "@/lib/i18n";
+export function AdminNav({locale,dictionary}:{locale:Locale;dictionary:Dictionary}){return <nav className="flex flex-wrap gap-2" aria-label={dictionary.nav.admin}><Link className={buttonStyles("ghost")} href={`/${locale}/admin`}>{dictionary.nav.admin}</Link><Link className={buttonStyles("ghost")} href={`/${locale}/admin/users`}>{dictionary.admin.users}</Link><Link className={buttonStyles("ghost")} href={`/${locale}/admin/disputes`}>{dictionary.admin.openDisputes}</Link><Link className={buttonStyles("ghost")} href={`/${locale}/admin/audit`}>{dictionary.admin.audit}</Link><Link className={buttonStyles("ghost")} href={`/${locale}/admin/analytics`}>{dictionary.admin.analytics}</Link></nav>}

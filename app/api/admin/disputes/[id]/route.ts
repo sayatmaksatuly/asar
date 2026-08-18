@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server";
+import { getAuthContext, jsonError, statusForDatabaseError } from "@/lib/api";
+export async function POST(request:Request,{params}:{params:Promise<{id:string}>}){const {id}=await params;const context=await getAuthContext();if(!context.supabase)return jsonError(context.error,503);if(!context.user||context.profile?.role!=="admin")return jsonError("admin_required",403);const body=(await request.json().catch(()=>null))as{action?:string;reason?:string}|null;const{error}=await context.supabase.rpc("admin_resolve_dispute",{p_dispute_id:id,p_action:String(body?.action??""),p_reason:String(body?.reason??"")});if(error)return jsonError(error.message,statusForDatabaseError(error.message));return NextResponse.json({resolved:true});}
